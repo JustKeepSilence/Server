@@ -6,12 +6,12 @@ using Server.Models;
 namespace Server.Connectors
 {
 
-    public class MysqlConnectors : IDisposable
+    public class MysqlConnector : IDisposable
     {
 
         private MySqlConnection? Connection { get; set; }
 
-        public MysqlConnectors(IConfiguration configuration, out string msg)
+        public MysqlConnector(IConfiguration configuration, out string msg)
         {
 
             msg = string.Empty;
@@ -55,7 +55,7 @@ namespace Server.Connectors
         /// <param name="dbName"></param>
         /// <param name="msg"></param>
         /// <param name="maxPoolSize"></param>
-        public MysqlConnectors(string ip, uint port, string userName, string passWord, string dbName, out string msg,
+        public MysqlConnector(string ip, uint port, string userName, string passWord, string dbName, out string msg,
         uint maxPoolSize = 100)
         {
 
@@ -322,9 +322,9 @@ namespace Server.Connectors
                 string cs = string.Join(',', colunmNames);
                 StringBuilder sb = new();
                 sb.Append($"insert into {tableName} ({cs}) values");
-                List<string> parameterNames = new();
-                List<string> temp = new();
-                List<string> bindingValues = new();
+                List<string> parameterNames = [];
+                List<string> temp = [];
+                List<string> bindingValues = [];
                 for (int i = 0; i < values.Count; i++)
                 {
                     temp.Clear();
@@ -334,10 +334,10 @@ namespace Server.Connectors
                         bindingValues.Add(values[i][j]);
                     }
                     parameterNames.AddRange(temp);
-                    sb.Append("(").Append(string.Join(',', temp)).Append("),");
+                    sb.Append('(').Append(string.Join(',', temp)).Append("),");
                 }
                 string command = sb.ToString().TrimEnd(',');
-                var result = await Insert(parameterNames, new List<string>() { command }, new List<List<string>>() { bindingValues });
+                var result = await Insert(parameterNames, [command], [bindingValues]);
                 return result;
             }
             catch (Exception ex)
@@ -381,7 +381,7 @@ namespace Server.Connectors
 
                 var reader = await sqlCommand.ExecuteReaderAsync();
                 await reader.ReadAsync();
-                Dictionary<string, byte[]> results = new();
+                Dictionary<string, byte[]> results = [];
                 foreach (var fieldName in fieldNames)
                 {
                     var len = reader.GetBytes(reader.GetOrdinal(fieldName), 0, null, 0, 0);
@@ -697,6 +697,10 @@ namespace Server.Connectors
         {
 
             Connection?.Close();
+
+            Connection = null;
+
+            GC.SuppressFinalize(this);
 
         }
 

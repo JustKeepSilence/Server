@@ -1,5 +1,3 @@
-
-
 using Microsoft.AspNetCore.Http.Extensions;
 using Server.Connectors;
 using Server.Models;
@@ -27,7 +25,7 @@ public class TokenAuthorizationMiddleware(RequestDelegate next)
             {
 
 
-                using MysqlConnectors connectors = new(configuration, out string msg);
+                using MysqlConnector connectors = new(configuration, out string msg);
                 if (!string.IsNullOrEmpty(msg))
                 {
 

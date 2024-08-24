@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Server.Connectors;
 using Server.Models;
 using Newtonsoft.Json;
+using Server.Commons;
 
 namespace Server.MiddleWares;
 
 public class TokenAuthorizationMiddleware(RequestDelegate next)
 {
+
+    private static readonly int CallIndex = 2;
 
     private RequestDelegate Next { get; set; } = next;
 

@@ -1,12 +1,8 @@
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Server.MiddleWares;
 
 public static class CustomMiddlewareExtensions
-
-
-
 {
 
     public static IApplicationBuilder UseCustomMiddlware(this IApplicationBuilder builder)
@@ -15,7 +11,10 @@ public static class CustomMiddlewareExtensions
                  where x.IsClass && x.Namespace == "Server.MiddleWares" && x.FullName is not null
         && x.FullName != "Server.MiddleWares.CustomMiddlewareExtensions"
         && !x.FullName.Contains("InvokeAsync")
-        && x.Attributes == (TypeAttributes.Public | TypeAttributes.BeforeFieldInit) select x;
+        && x.Attributes == (TypeAttributes.Public | TypeAttributes.BeforeFieldInit) 
+        let callIndex = x.GetField("CallIndex", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) 
+        where callIndex is not null orderby callIndex select x;
+        
         foreach (var n in ns)
         {
             var method = (from m in typeof(UseMiddlewareExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public)
